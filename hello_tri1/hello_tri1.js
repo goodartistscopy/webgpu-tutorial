@@ -74,9 +74,9 @@ Promise.all(initComplete).then((results) => {
 
     //=== Describe the Layout of our Pipeline
      
-    // let pipelineLayout = device.createPipelineLayout({
-    //     bindGroupLayouts: [bindGroupLayout],
-    // });
+    let pipelineLayout = device.createPipelineLayout({
+        bindGroupLayouts: [bindGroupLayout],
+    });
 
     const pipeline = device.createRenderPipeline({
         label: "BasicPipeline",
@@ -103,11 +103,11 @@ Promise.all(initComplete).then((results) => {
             module: shaderModule,
             entryPoint: "vertexMain",
         },
-        layout: "auto"
+        layout: pipelineLayout
     });
 
     //=== Create a Buffer to hold our color data
-    let colorData = new Float32Array([1.0, 0.0, 0.0, 1.0]);
+    let colorData = new Float32Array([0.3, 1.0, 0.0, 1.0]);
     let colorBuffer = device.createBuffer({label: "colorBuffer", size: 16, usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST });
     // Note: chrome and FF dont' agree on the size parameter (bytes vs number of elements)
     //       Fortunately we can omit it here (whole array uploaded)
