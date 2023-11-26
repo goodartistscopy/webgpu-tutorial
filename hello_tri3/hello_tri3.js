@@ -39,7 +39,7 @@ async function setupCanvas(canvasId) {
 const shaderFiles = ["triangle3.wgsl"];
 
 let shaderSources = shaderFiles.map((file) => {
-  return fetch(file)
+  return fetch(file, { cache: "no-cache" })
     .then((response) => response.text())
     .then((text) => ({ file, text }));
 });
