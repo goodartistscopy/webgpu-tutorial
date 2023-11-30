@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>WebGPU</title>
+</head>
+<body>
+    <script type="module" src="surfels.js"></script>
+    
+    <div style="width: 100%; margin: auto; text-align: center">
+        <canvas id="webgpu-canvas" width="1024" height="768"></canvas>
+    
+        <div>
+            <label for="point-width">Point width</label>
+            <input id="point-width" type="range" value="1.0" min="0.1" max="10.0" step="any" list="markers">
+            <datalist id="markers">
+                <option value="1.0"></option>
+            </datalist>
+        </div>
+        <div>
+            <label for="method">Method</label>
+            <select id="method">
+                <option value="points">Vertex Buffer of point primitives</option>
+                <option value="quads_cpu">Vertex Buffer of quads (CPU build)</option>
+                <option value="quads_gpu">Vertex Buffer of quads (GPU build)</option>
+                <option value="instancing">Instancing a single quad</option>
+                <option value="storage_buffers">Storage buffers and vertex_index</option>
+            </select>
+        </div>
+    </div>
+</body>
+</html>
+
