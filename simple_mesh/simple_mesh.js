@@ -267,7 +267,7 @@ Promise.all(initComplete).then((results) => {
 
     let angle = 0.0;
     let update = () => {
-        // update mesh rotation
+        // update light position
         angle += radians(1.0);
         angle = angle % (2.0 * Math.PI);
         lightPos[0] = 3.0 * Math.cos(angle);
@@ -286,7 +286,7 @@ Promise.all(initComplete).then((results) => {
                     view: context.getCurrentTexture().createView(),
                 },
             ],
-            depthStencilAttachment:{
+            depthStencilAttachment: {
                 depthClearValue: 1.0,
                 depthLoadOp: "clear",
                 depthStoreOp: "store",
@@ -335,10 +335,9 @@ Promise.all(initComplete).then((results) => {
             let dy = event.pageY - povAction.y;
 
             pov.theta = povAction.theta0 + (dx * CAM_ROT_THETA_PER_PIXELS);
+            pov.theta = pov.theta % (2.0 * Math.PI);
             if (pov.theta < 0.0) {
                 pov.theta = (2.0 * Math.PI) + pov.theta;
-            } else {
-                pov.theta = pov.theta % (2.0 * Math.PI);
             }
             pov.phi = clamp(povAction.phi0 - (dy * CAM_ROT_PHI_PER_PIXELS), 1e-6, Math.PI - 1e-6);
 
