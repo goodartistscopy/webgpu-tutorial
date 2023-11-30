@@ -1,11 +1,9 @@
 function buildObjectFieldsTable(parent, label, object) {
     var table = document.createElement("table");
-    table.style.border = "solid black 1px";
 
     var header = document.createElement("tr");
     var labelCell = document.createElement("th");
     labelCell.setAttribute("colspan", 2);
-    labelCell.style.textAlign = "center";
     labelCell.appendChild(document.createTextNode(label));
     header.appendChild(labelCell);
     table.appendChild(header);
@@ -22,9 +20,6 @@ function buildObjectFieldsTable(parent, label, object) {
         valueCell.appendChild(document.createTextNode(object[limit]));
         row.appendChild(valueCell);
 
-        even = !even;
-        row.style.background = even ? "rgb(210,210,210)" : "rgb(230,230,230)";
-
         table.appendChild(row);
     }
 
@@ -33,7 +28,6 @@ function buildObjectFieldsTable(parent, label, object) {
 
 function buildSetTable(parent, label, set) {
     var table = document.createElement("table");
-    table.style.border = "solid black 1px";
 
     var header = document.createElement("tr");
     var labelCell = document.createElement("th");
@@ -41,16 +35,12 @@ function buildSetTable(parent, label, set) {
     header.appendChild(labelCell);
     table.appendChild(header);
 
-    var even = false;
-    for (let feature in set.keys()) {
+    for (let feature of set.keys()) {
         let row = document.createElement("tr");
         
         let featureCell = document.createElement("td");
         featureCell.appendChild(document.createTextNode(feature));
         row.appendChild(featureCell);
-
-        even = !even;
-        row.style.background = even ? "rgb(210,210,210)" : "rgb(230,230,230)";
 
         table.appendChild(row);
     }
@@ -70,12 +60,10 @@ function buildSetTable(parent, label, set) {
     let adapterInfo = await adapter.requestAdapterInfo();
 
     let adapterInfoContainer = document.createElement("div");
-    adapterInfoContainer.style.marginBottom = "1em";
     buildObjectFieldsTable(adapterInfoContainer, "Adapter", adapterInfo);
     document.body.appendChild(adapterInfoContainer);
 
     let limitContainer = document.createElement("div");
-    limitContainer.style.marginBottom = "1em";
     buildObjectFieldsTable(limitContainer, "Limits", adapter.limits);
     document.body.appendChild(limitContainer);
 
