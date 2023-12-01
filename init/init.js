@@ -8,7 +8,6 @@ function buildObjectFieldsTable(parent, label, object) {
     header.appendChild(labelCell);
     table.appendChild(header);
 
-    var even = false;
     for (let limit in object) {
         let row = document.createElement("tr");
         
