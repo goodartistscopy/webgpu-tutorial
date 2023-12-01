@@ -55,7 +55,7 @@ let shaderSources = shaderFiles.map((file) => {
         .catch(() => ({ file, text: `// File ${file} not found` }));
 });
 
-let meshFileContent = fetch("../data/bunny.ply").then(response => response.arrayBuffer()).then(buffer => new Uint8Array(buffer));
+let meshFileContent = fetch("../data/bunny.txt").then(response => response.arrayBuffer()).then(buffer => new Uint8Array(buffer));
 
 function radians(degrees) {
     return degrees * (Math.PI / 180.0);
@@ -118,11 +118,10 @@ function loadMesh(fileContent, normalize = false, scale = 1.0) {
     let val;
     let vertices = new Float32Array(7 * numVertices);
     for (let i = 0; i < numVertices; i++) {
-        for (let j = 0; j < 6; j++) {
+        for (let j = 0; j < 7; j++) {
             ({val, rest: data} = getNext(data, j == 6 ? "\n" : " "));
             vertices[7 * i + j] = val;
         }
-        vertices[7 * i + 6] = 0.05;
 
         if (normalize) {
             for (let j = 0; j < 3; j++) {
@@ -143,6 +142,7 @@ function loadMesh(fileContent, normalize = false, scale = 1.0) {
             for (let j = 0; j < 3; j++) {
                 vertices[7 * i + j] = s * (vertices[7 * i + j] - center[j]);
             }
+            vertices[7 * i + 6] = s * vertices[7 * i + 6];
         }
     }
     
@@ -474,9 +474,9 @@ Promise.all(initComplete).then((results) => {
     mat4.invert(invViewMat, viewMat);
     mat4.perspective(projMat, (Math.PI / 180.0) * 30, canvas.width / canvas.height, 0.1, 1000.0); 
 
-    lightPos[0] = 0.0;
+    lightPos[0] = 1.0;
     lightPos[1] = 3.0;
-    lightPos[2] = 0.0;
+    lightPos[2] = 1.0;
 
     lightColor[0] = 1.0;
     lightColor[1] = 1.0;
