@@ -1,5 +1,5 @@
 class PointPrimitiveTechnique {
-    constructor(ctx, shaderRegistry, layout, bindGroups) {
+    constructor(ctx, shaderRegistry, layouts, bindGroups) {
         this.ctx = ctx;
         this.device = ctx.device;
         let width = ctx.canvas.width;
@@ -12,7 +12,7 @@ class PointPrimitiveTechnique {
         this.mainPipeline = device.createRenderPipeline({
             vertex: {
                 module,
-                entryPoint: "vertexMain",
+                entryPoint: "pointMain",
                 buffers : [{
                     arrayStride: 28,
                     attributes: [
@@ -24,11 +24,11 @@ class PointPrimitiveTechnique {
             },
             fragment: {
                 module,
-                entryPoint: "fragmentMain",
+                entryPoint: "drawPoint",
                 targets: [{ format: "rgba8unorm" }],
             },
             primitive: { topology: "point-list" },
-            layout,
+            layout: device.createPipelineLayout({bindGroupLayouts: layouts}),
         });
 
         // Render target texture (also bound for reading in the post-process pass)
@@ -65,7 +65,6 @@ class PointPrimitiveTechnique {
 
         this.bindGroups = bindGroups;
         this.backgroundColor = [1.0, 1.0, 1.0, 1.0];
-        this.pointSize = 1.0;
     }
 
     // Note: we should probably batch these updates in a single write

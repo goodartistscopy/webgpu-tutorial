@@ -96,8 +96,6 @@ function loadMesh(fileContent, normalize = false, scale = 1.0) {
     return {vertices, indices};
 }
 
-var shaderRegistry;
-
 let initComplete = [getRenderContext("webgpu-canvas")].concat([meshFileContent]).concat(shaderSources);
 Promise.all(initComplete).then((results) => {
     let ctx = results[0];
@@ -111,15 +109,12 @@ Promise.all(initComplete).then((results) => {
         return dict;
     }, {});
 
-    shaderRegistry = shaders;
-
     const shaderModule = device.createShaderModule({ code: shaders["mesh.wgsl"] });
     const dilationShaderModule = device.createShaderModule({ code: shaders["dilate.wgsl"] });
 
-    let pointSize = 1.0;
     let renderMethod = "points";
 
-    //let pointCloud = createPointCloud(numPoints);
+    //let pointCloud = createPointCloud(1000);
     let {vertices: pointCloud, indices} = loadMesh(meshContent, true, 3.0);
 
     // SceneData layout (offset, size)
@@ -163,7 +158,7 @@ Promise.all(initComplete).then((results) => {
     mat4.identity(modelMat);
     mat4.invert(invModelMat, modelMat);
     meshColor.set([0.8, 0.8, 1.0, 1.0]);
-    pointSizeFactor[0] = 1.0;
+    pointSizeFactor[0] = 3.0;
 
     let meshDataBuffer = device.createBuffer({
         label: "MeshData",
@@ -178,32 +173,27 @@ Promise.all(initComplete).then((results) => {
     let sceneGroup = device.createBindGroup({ entries: [ { binding: 0, resource: { buffer: sceneDataBuffer }, }, ], layout });
     let meshGroup = device.createBindGroup({ entries: [ { binding: 0, resource: { buffer: meshDataBuffer }, }, ], layout });
 
-    let pipelineLayout = device.createPipelineLayout({bindGroupLayouts: [layout,  layout]});
-    let technique = new PointPrimitiveTechnique(ctx, shaderRegistry, pipelineLayout, [sceneGroup, meshGroup]);
+    let bindGroupLayouts = [layout, layout];
+    let technique = new PointPrimitiveTechnique(ctx, shaders, bindGroupLayouts, [sceneGroup, meshGroup]);
     technique.pointCloud = pointCloud;
-    technique.backgroundColor = [1.0, 1.0, 1.0, 1.0];
-    technique.pointSize = 1.0;
     
     let techniques = [];
     techniques["points"] = technique;
 
-    technique = new QuadsCPUBuiltTechnique(ctx, shaderRegistry, pipelineLayout, [sceneGroup, meshGroup]);
+    technique = new QuadsCPUBuiltTechnique(ctx, shaders, bindGroupLayouts, [sceneGroup, meshGroup]);
     technique.pointCloud = pointCloud;
     techniques["quads_cpu"] = technique;
 
-    technique = new QuadsGPUBuiltTechnique(ctx, shaderRegistry, pipelineLayout, [sceneGroup, meshGroup]);
+    technique = new QuadsGPUBuiltTechnique(ctx, shaders, bindGroupLayouts, [sceneGroup, meshGroup]);
     technique.pointCloud = pointCloud;
     techniques["quads_gpu"] = technique;
 
-    technique = new InstancingTechnique(ctx, shaderRegistry, pipelineLayout, [sceneGroup, meshGroup]);
+    technique = new InstancingTechnique(ctx, shaders, bindGroupLayouts, [sceneGroup, meshGroup]);
     technique.pointCloud = pointCloud;
+    technique.depthFuzziness = 5e-2;
     techniques["instancing"] = technique;
 
-    let layoutStorage = device.createBindGroupLayout({
-        entries: [{ binding: 0, visibility: GPUShaderStage.FRAGMENT | GPUShaderStage.VERTEX, buffer: { type: "read-only-storage" }}]
-    });
-    pipelineLayout = device.createPipelineLayout({bindGroupLayouts: [layout,  layout, layoutStorage]});
-    technique = new StorageBufferTechnique(ctx, shaderRegistry, pipelineLayout, [sceneGroup, meshGroup]);
+    technique = new StorageBufferTechnique(ctx, shaders, bindGroupLayouts, [sceneGroup, meshGroup]);
     technique.pointCloud = pointCloud;
     techniques["storage_buffer"] = technique;
 
@@ -220,8 +210,8 @@ Promise.all(initComplete).then((results) => {
 
     window.requestAnimationFrame(update);
 
-    document.getElementById("point-width").addEventListener("input", (event) => {
-        pointSizeFactor[0] = event.target.value;
+    document.getElementById("point-size-factor-log").addEventListener("input", (event) => {
+        pointSizeFactor[0] = Math.pow(5.0, event.target.value);
         device.queue.writeBuffer(meshDataBuffer, 0, meshData);
         
         if (renderMethod == "points" || renderMethod == "quads_cpu") {
@@ -237,5 +227,9 @@ Promise.all(initComplete).then((results) => {
             techniques[renderMethod].pointSizeFactor = (renderMethod == "points") ? 
                 Math.max(1.0, Math.ceil(5 * pointSizeFactor[0])) : pointSizeFactor[0];
         }
+    });
+
+    document.getElementById("blend-splats-check").addEventListener("input", (event) => {
+        techniques["instancing"].blendSplats = event.target.checked;
     });
 });

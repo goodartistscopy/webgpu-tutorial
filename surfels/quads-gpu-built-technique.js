@@ -1,5 +1,8 @@
+// Similar to QuadsCPUBuiltTechnique, but here the quads are displaced dynamically
+// in the vertex shader, the point size factor can be a uniform value, the buffer
+// does not need rebuilding when its value change
 class QuadsGPUBuiltTechnique {
-    constructor(ctx, shaderRegistry, layout, bindGroups) {
+    constructor(ctx, shaderRegistry, layouts, bindGroups) {
         this.ctx = ctx;
         this.device = ctx.device;
         let width = ctx.canvas.width;
@@ -7,12 +10,12 @@ class QuadsGPUBuiltTechnique {
 
         let device = this.device;
 
-        // Main point primitives rendering pass
+        // Main quad rendering pass
         let module = device.createShaderModule({ code: shaderRegistry["mesh.wgsl"] });
         this.mainPipeline = device.createRenderPipeline({
             vertex: {
                 module,
-                entryPoint: "vsQuad2",
+                entryPoint: "vsQuadProcedural",
                 buffers : [{
                     arrayStride: 28,
                     attributes: [
@@ -24,7 +27,7 @@ class QuadsGPUBuiltTechnique {
             },
             fragment: {
                 module,
-                entryPoint: "fragmentMain",
+                entryPoint: "drawPoint",
                 targets: [{ format:  navigator.gpu.getPreferredCanvasFormat() }],
             },
             primitive: { topology: "triangle-list", cullMode: "back" },
@@ -33,7 +36,7 @@ class QuadsGPUBuiltTechnique {
                depthCompare: "less",
                format: "depth32float" 
             },
-            layout
+            layout: device.createPipelineLayout({bindGroupLayouts: layouts}),
         });
 
         this.zbuffer = device.createTexture({ format: "depth32float", size: [ctx.canvas.width, ctx.canvas.height], usage: GPUTextureUsage.RENDER_ATTACHMENT }).createView();

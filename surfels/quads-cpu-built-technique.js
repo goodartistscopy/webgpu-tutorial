@@ -1,7 +1,11 @@
 import { vec3, mat3 } from "../ext/gl-matrix/dist/esm/index.js"
 
+// Render a quad per points. The vertex buffer is constructed on the CPU
+// including displacing each quad corner the right amount in the point "plane"
+// depending on the point radius/size.
+// The buffer has to be reconstructed whenever the size factor is changed.
 class QuadsCPUBuiltTechnique {
-    constructor(ctx, shaderRegistry, layout, bindGroups) {
+    constructor(ctx, shaderRegistry, layouts, bindGroups) {
         this.ctx = ctx;
         this.device = ctx.device;
         let width = ctx.canvas.width;
@@ -9,7 +13,7 @@ class QuadsCPUBuiltTechnique {
 
         let device = this.device;
 
-        // Main point primitives rendering pass
+        // Main quad rendering pass
         let module = device.createShaderModule({ code: shaderRegistry["mesh.wgsl"] });
         this.mainPipeline = device.createRenderPipeline({
             vertex: {
@@ -26,7 +30,7 @@ class QuadsCPUBuiltTechnique {
             },
             fragment: {
                 module,
-                entryPoint: "fragmentMain",
+                entryPoint: "drawPoint",
                 targets: [{ format:  navigator.gpu.getPreferredCanvasFormat() }],
             },
             primitive: { topology: "triangle-list", cullMode: "back" },
@@ -35,7 +39,7 @@ class QuadsCPUBuiltTechnique {
                depthCompare: "less",
                format: "depth32float" 
             },
-            layout,
+            layout: device.createPipelineLayout({bindGroupLayouts: layouts}),
         });
 
         this.zbuffer = device.createTexture({ format: "depth32float", size: [ctx.canvas.width, ctx.canvas.height], usage: GPUTextureUsage.RENDER_ATTACHMENT }).createView();

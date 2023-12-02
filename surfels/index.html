@@ -10,10 +10,10 @@
         <canvas id="webgpu-canvas" width="1024" height="768"></canvas>
     
         <div>
-            <label for="point-width">Point width</label>
-            <input id="point-width" type="range" value="1.0" min="0.1" max="10.0" step="any" list="markers">
+            <label for="point-size-factor-log">Point width</label>
+            <input id="point-size-factor-log" type="range" value="1.0" min="-1.5" max="1.5" step="any" list="markers">
             <datalist id="markers">
-                <option value="1.0"></option>
+                <option value="0.0"></option>
             </datalist>
         </div>
         <div>
@@ -25,6 +25,10 @@
                 <option value="instancing">Instancing a single quad</option>
                 <option value="storage_buffer">Storage buffer and vertex_index</option>
             </select>
+        </div>
+        <div>
+            <input id="blend-splats-check" type="checkbox">
+            <label for="blend-splats-check">Blend splats (instancing only)</label>
         </div>
     </div>
 </body>

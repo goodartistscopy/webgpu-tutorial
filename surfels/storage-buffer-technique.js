@@ -1,5 +1,13 @@
+// Here we just implement "by hand" the access to the vertex data withut resorting
+// to vertex buffers, using 'instance_index' to retrieve the point properties and
+// 'vertex_index' to procedurally construct the quad.
+// Note that vertex buffers have very relaxed alignment constraints (4 bytes) for
+// attributes, whereas storage buffer variables have more complex rules, making
+// these kind of approach to vertex data management sometimes less ideal. Here we
+// mitigate the issue by reordering the fields of the vertex structure, which leads
+// to only 4 additional bytes of padding (per vertex though!).
 class StorageBufferTechnique {
-    constructor(ctx, shaderRegistry, layout, bindGroups) {
+    constructor(ctx, shaderRegistry, layouts, bindGroups) {
         this.ctx = ctx;
         this.device = ctx.device;
         let width = ctx.canvas.width;
@@ -7,17 +15,23 @@ class StorageBufferTechnique {
 
         let device = this.device;
 
-        // Main point primitives rendering pass
+        // Main quad rendering pass
         let module = device.createShaderModule({ code: shaderRegistry["mesh.wgsl"] });
+        
+        let layoutStorageBuffer = device.createBindGroupLayout({
+            entries: [{ binding: 0, visibility: GPUShaderStage.FRAGMENT | GPUShaderStage.VERTEX, buffer: { type: "read-only-storage" }}]
+        });
+        let extendedLayouts = layouts.concat([layoutStorageBuffer]);
+        
         this.mainPipeline = device.createRenderPipeline({
             vertex: {
                 module,
-                entryPoint: "vsQuad4",
+                entryPoint: "vsQuadManual",
                 buffers : [],
             },
             fragment: {
                 module,
-                entryPoint: "fragmentMain",
+                entryPoint: "drawPoint",
                 targets: [{ format:  navigator.gpu.getPreferredCanvasFormat() }],
             },
             primitive: { topology: "triangle-list", cullMode: "back" },
@@ -26,7 +40,7 @@ class StorageBufferTechnique {
                depthCompare: "less",
                format: "depth32float" 
             },
-            layout: layout,
+            layout: device.createPipelineLayout({bindGroupLayouts: extendedLayouts}),
         });
 
         this.zbuffer = device.createTexture({ format: "depth32float", size: [ctx.canvas.width, ctx.canvas.height], usage: GPUTextureUsage.RENDER_ATTACHMENT }).createView();
