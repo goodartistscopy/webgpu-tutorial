@@ -145,7 +145,7 @@ struct PointData {
     normal: vec3f,
 }
 
-@group(1) @binding(1) var<storage> points: array<PointData>;
+@group(2) @binding(0) var<storage> points: array<PointData>;
 
 @vertex fn vsQuad4(@builtin(vertex_index) vIdx: u32, @builtin(instance_index) instIdx: u32) -> VertexOut {
     let vertex = points[instIdx];
