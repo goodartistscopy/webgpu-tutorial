@@ -17,7 +17,7 @@ class InstancingTechnique {
 
         let device = this.device;
 
-        let module = device.createShaderModule({ code: shaderRegistry["mesh.wgsl"] });
+        let module = device.createShaderModule({ code: shaderRegistry["surfels.wgsl"] });
         // Main quads rendering pass
         let descriptor = {
             vertex: {

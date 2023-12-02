@@ -7,7 +7,7 @@ import { QuadsGPUBuiltTechnique } from "./quads-gpu-built-technique.js";
 import { InstancingTechnique } from "./instancing-technique.js";
 import { StorageBufferTechnique} from "./storage-buffer-technique.js";
 
-const shaderFiles = ["mesh.wgsl", "dilate.wgsl"];
+const shaderFiles = ["surfels.wgsl", "dilate.wgsl"];
 
 let shaderSources = loadFiles(shaderFiles);
 
@@ -108,9 +108,6 @@ Promise.all(initComplete).then((results) => {
         dict[file] = content;
         return dict;
     }, {});
-
-    const shaderModule = device.createShaderModule({ code: shaders["mesh.wgsl"] });
-    const dilationShaderModule = device.createShaderModule({ code: shaders["dilate.wgsl"] });
 
     let renderMethod = "points";
 

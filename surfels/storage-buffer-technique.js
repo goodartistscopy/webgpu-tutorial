@@ -16,7 +16,7 @@ class StorageBufferTechnique {
         let device = this.device;
 
         // Main quad rendering pass
-        let module = device.createShaderModule({ code: shaderRegistry["mesh.wgsl"] });
+        let module = device.createShaderModule({ code: shaderRegistry["surfels.wgsl"] });
         
         let layoutStorageBuffer = device.createBindGroupLayout({
             entries: [{ binding: 0, visibility: GPUShaderStage.FRAGMENT | GPUShaderStage.VERTEX, buffer: { type: "read-only-storage" }}]

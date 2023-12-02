@@ -11,7 +11,7 @@ class QuadsGPUBuiltTechnique {
         let device = this.device;
 
         // Main quad rendering pass
-        let module = device.createShaderModule({ code: shaderRegistry["mesh.wgsl"] });
+        let module = device.createShaderModule({ code: shaderRegistry["surfels.wgsl"] });
         this.mainPipeline = device.createRenderPipeline({
             vertex: {
                 module,

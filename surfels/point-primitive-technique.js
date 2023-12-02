@@ -8,7 +8,7 @@ class PointPrimitiveTechnique {
         let device = this.device;
 
         // Main point primitives rendering pass
-        let module = device.createShaderModule({ code: shaderRegistry["mesh.wgsl"] });
+        let module = device.createShaderModule({ code: shaderRegistry["surfels.wgsl"] });
         this.mainPipeline = device.createRenderPipeline({
             vertex: {
                 module,
