@@ -1,9 +1,11 @@
+// For Firefox you need to comment the end of mesh.wgsl (from the declaration of video_texture)
+
 import { vec3, mat4 } from "../ext/gl-matrix/dist/esm/index.js";
 
 //  Change this vaalue for different behavior
 // 1, 2, 3: static textures
-// 4: external texture from a video element
-const TEST = 4;
+// 4: external texture from a video element (unsupported on Firefox)
+const TEST = 3;
 const USE_WEBCAM = true; // for TEST == 4 only
 
 const shaderFiles = ["mesh.wgsl"];
@@ -493,14 +495,5 @@ Promise.all(initComplete).then((results) => {
 
             updateViewMats(viewMat, invViewMat, pov);
         }
-    });
-
-    let video = document.getElementById('video');
-    canvas.addEventListener('click', () => {
-        if (video.paused) {
-            video.play();
-        }/* else {
-            video.pause();
-        }*/
     });
 });
