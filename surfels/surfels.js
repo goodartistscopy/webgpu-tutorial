@@ -11,7 +11,7 @@ const shaderFiles = ["surfels.wgsl", "dilate.wgsl"];
 
 let shaderSources = loadFiles(shaderFiles);
 
-let meshFileContent = fetch("../data/bunny.txt").then(response => response.arrayBuffer()).then(buffer => new Uint8Array(buffer));
+let meshFileContent = fetch("./data/bunny.txt").then(response => response.arrayBuffer()).then(buffer => new Uint8Array(buffer));
 
 function createPointCloud(numPoints) {
     let vbuffer = new Float32Array(numPoints * 7);
