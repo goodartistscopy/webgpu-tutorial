@@ -1,4 +1,4 @@
-@group(0) @binding(1) var<uniform> theta: f32;
+@group(1) @binding(12) var<uniform> theta: f32;
 
 @vertex fn vertexMain(@builtin(vertex_index) vertexIndex : u32) -> @builtin(position) vec4<f32> {
     var pos = array<vec2<f32>, 3>(

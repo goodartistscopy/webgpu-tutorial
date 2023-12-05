@@ -59,14 +59,14 @@ Promise.all(initComplete).then((results) => {
     });
 
     let bindGroupLayout = device.createBindGroupLayout({
-        entries: [
-            { binding: 0, visibility: GPUShaderStage.FRAGMENT, buffer: {} },
-            { binding: 1, visibility: GPUShaderStage.VERTEX, buffer: {} },
-        ],
+        entries: [{ binding: 0, visibility: GPUShaderStage.FRAGMENT, buffer: {} }],
+    });
+    let bindGroupLayout1 = device.createBindGroupLayout({
+        entries: [{ binding: 12, visibility: GPUShaderStage.VERTEX, buffer: {} }],
     });
 
     let pipelineLayout = device.createPipelineLayout({
-        bindGroupLayouts: [bindGroupLayout],
+        bindGroupLayouts: [bindGroupLayout, bindGroupLayout1],
     });
 
     const pipeline = device.createRenderPipeline({
@@ -80,8 +80,8 @@ Promise.all(initComplete).then((results) => {
             entryPoint: "fragmentMain",
             targets: [{ format: "bgra8unorm" }],
         },
-        layout: "auto",
-        //layout: pipelineLayout
+        //layout: "auto",
+        layout: pipelineLayout,
     });
 
     let colorData = new Float32Array([1.0, 0.0, 0.0, 1.0]);
@@ -106,13 +106,20 @@ Promise.all(initComplete).then((results) => {
                 binding: 0,
                 resource: { buffer: colorBuffer },
             },
+        ],
+        //layout: bindGroupLayout,
+        layout: pipeline.getBindGroupLayout(0),
+    });
+
+    let bindGroup1 = device.createBindGroup({
+        entries: [
             {
-                binding: 1,
+                binding: 12,
                 resource: { buffer: angleBuffer },
             },
         ],
         //layout: bindGroupLayout,
-        layout: pipeline.getBindGroupLayout(0),
+        layout: pipeline.getBindGroupLayout(1),
     });
 
     let angle = 0.0;
@@ -132,7 +139,14 @@ Promise.all(initComplete).then((results) => {
 
         pass.setPipeline(pipeline);
         pass.setBindGroup(0, bindGroup);
+        pass.setBindGroup(1, bindGroup1);
+        pass.draw(3);
+        pass.end();
 
+        let commands = encoder.finish({ label: "commandBuffer" });
+        device.queue.submit([commands]);
+
+        // update the angle
         let angleData2 = new Float32Array([angle]);
         device.queue.writeBuffer(angleBuffer, 0, angleData2);
         angle += 0.01;
@@ -140,12 +154,6 @@ Promise.all(initComplete).then((results) => {
             angle = 0.0;
         }
 
-        pass.draw(3);
-        pass.end();
-
-        let commands = encoder.finish({ label: "commandBuffer" });
-
-        device.queue.submit([commands]);
         window.requestAnimationFrame(update);
     };
 
