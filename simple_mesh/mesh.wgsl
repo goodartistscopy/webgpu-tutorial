@@ -5,7 +5,9 @@ struct Camera {
 }
 
 struct VertexIn {
-    @location(0) position: vec3f,
+    // Note: declared as "float32x3" in the vertex buffer descriptpr
+    // The last component is automatically filled with value 1.0
+    @location(0) position: vec4f, 
     @location(1) normal: vec3f
 }
 
@@ -39,7 +41,7 @@ struct SceneData {
     let norm_xform = transpose(mesh.inv_model * scene.camera.inv_view);
 
     var out: VertexOut;
-    let cs_position = pos_xform * vec4f(vertex.position, 1.0);
+    let cs_position = pos_xform * vertex.position;
     out.position = scene.camera.proj * cs_position;
     out.cs_position = cs_position.xyz;
     out.normal = (norm_xform * vec4f(vertex.normal, 1.0)).xyz;

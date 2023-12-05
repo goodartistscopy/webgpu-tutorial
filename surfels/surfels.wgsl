@@ -32,7 +32,7 @@ struct SceneData {
 //=== Basic render pipeline, using for the "point-list" topology
 
 struct Point {
-    @location(0) position: vec3f,
+    @location(0) position: vec4f,
     @location(1) normal: vec3f,
 }
 
@@ -48,7 +48,7 @@ struct VertexOut {
     let norm_xform = transpose(mesh.inv_model * scene.camera.inv_view);
 
     var out: VertexOut;
-    let cs_position = pos_xform * vec4f(point.position, 1.0);
+    let cs_position = pos_xform * point.position;
     out.position = scene.camera.proj * cs_position;
     out.cs_position = cs_position.xyz;
     
@@ -62,7 +62,7 @@ struct VertexOut {
 //=== Render splats as quads (triangle pair)
 
 struct QuadVertex {
-    @location(0) position: vec3f,
+    @location(0) position: vec4f,
     @location(1) normal: vec3f,
     @location(2) local_uv: vec2f,
 }
@@ -72,7 +72,7 @@ struct QuadVertex {
     let norm_xform = transpose(mesh.inv_model * scene.camera.inv_view);
 
     var out: VertexOut;
-    let cs_position = pos_xform * vec4f(vertex.position, 1.0);
+    let cs_position = pos_xform * vertex.position;
     out.position = scene.camera.proj * cs_position;
     out.cs_position = cs_position.xyz;
     
