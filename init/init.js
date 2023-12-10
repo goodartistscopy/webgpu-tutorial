@@ -49,7 +49,7 @@ function buildSetTable(parent, label, set) {
 
 (async () => {
     var adapter = await navigator.gpu?.requestAdapter();
-    var device = await adapter?.requestDevice({requiredLimits: {maxBindGroups: 4}});
+    var device = await adapter?.requestDevice();
 
     if (device === undefined) {
         alert("Could not initialize WebGPU");
@@ -69,4 +69,8 @@ function buildSetTable(parent, label, set) {
     let featureContainer = document.createElement("div");
     buildSetTable(featureContainer, "Features", adapter.features);
     document.body.appendChild(featureContainer);
+
+    let wgslFeatureContainer = document.createElement("div");
+    buildSetTable(featureContainer, "WGSL Features", navigator.gpu.wgslLanguageFeatures);
+    document.body.appendChild(wgslFeatureContainer);
 })();
