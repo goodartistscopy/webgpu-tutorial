@@ -36,7 +36,7 @@ async function setupCanvas(canvasId) {
         device = null;
 
         if (info.reason !== "destroyed") {
-            setupConvas();
+            setupCanvas();
         }
     });
 

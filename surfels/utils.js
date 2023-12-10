@@ -17,7 +17,7 @@ async function getRenderContext(canvasId = undefined) {
         device = null;
 
         if (info.reason !== "destroyed") {
-            setupConvas();
+            setupCanvas();
         }
     });
 
