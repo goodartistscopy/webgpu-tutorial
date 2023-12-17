@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>WebGPU</title>
+</head>
+<body>
+    <div style="margin-bottom: 1em; padding: 0.5em; border: solid black 1px;">
+        <input type="button" id="benchmark-button" value="Benchmark">
+        <span style="display: inline-block;">
+            <div style="text-align: center; margin-bottom:0.25em;">Workgroup dimensions</div>
+            <label for="group_width">width</label>
+            <input type="number" value="16" id="group_width" style="width: 3em">
+            <label for="group_height">height</label>
+            <input type="number" value="16" id="group_height" style="width: 3em">
+        </span>
+        <label for="method">Method</label>
+        <select id="method">
+            <option value="naive-tex">Naive, direct VRAM, textures</option>
+            <option value="tiled-tex">Tiled (textures)</option>
+            <option value="tiled-buf">Tiled, buffers & bank conflicts</option>
+        </select>
+        <div style="margin-top: 0.5em">
+            <label for="bench_result">Duration:</label>
+            <input type="text" value="" id="bench-result" style="width: 8em">
+            <input type="button" id="reset-button" value="Reset">
+        </div>
+    </div>
+
+    <img src="image.jpg" id="image">
+    <canvas id="result" style="display: none;"></canvas>
+    <script src="transpose.js" type="module"></script>
+</body>
+</html>
