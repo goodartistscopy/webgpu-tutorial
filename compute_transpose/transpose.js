@@ -197,7 +197,7 @@ function buildPipelines() {
 }
 
 // run the pipeline once
-function transpose(pipeline, bindGroup, size) {
+function run(pipeline, bindGroup, size) {
     const encoder = device.createCommandEncoder();
     
     let pass = encoder.beginComputePass({ });
