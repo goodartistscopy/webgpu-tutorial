@@ -1,4 +1,4 @@
-import { initContext, loadTextFiles } from "../init/context.js"
+import { initContext, loadTextFiles } from "../init/context.js";
 
 const shaderFiles = ["transpose.wgsl", "transpose_tiled.wgsl"];
 const numRuns = 100;
@@ -8,7 +8,7 @@ const sourceImage = document.getElementById("image");
 const resultCanvas = document.getElementById("result");
 
 const wgpu = await initContext(null, ["timestamp-query"]);
-let {device, canvas, context, ...rest} = wgpu;
+let { device, canvas, context, ...rest } = wgpu;
 
 let shaders = await loadTextFiles(shaderFiles);
 
@@ -40,7 +40,7 @@ let dstTexture = device.createTexture({
 let dstBuffer = device.createBuffer({
     size: srcBitmap.width * srcBitmap.height * 4,
     //usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.MAP_READ
-    usage: GPUBufferUsage.COPY_SRC | GPUBufferUsage.STORAGE
+    usage: GPUBufferUsage.COPY_SRC | GPUBufferUsage.STORAGE,
 });
 
 //== Timestamp queries for benchmarking
@@ -115,8 +115,7 @@ document.getElementById("benchmark-button").addEventListener("click", async () =
     if (tsSet) {
         console.log(`duration: ${res} us`);
         resultEntry.value = `${res} us`;
-    }
-    else {
+    } else {
         resultEntry.value = `Timestamp queries unavailable`;
     }
 });
@@ -131,19 +130,19 @@ function buildPipelines() {
         ]
     });
     const texturesPipelineLayout = device.createPipelineLayout({
-        bindGroupLayouts: [ texturesGroupLayout ]
+        bindGroupLayouts: [texturesGroupLayout],
     });
 
     // Access through buffers
     const buffersGroupLayout = device.createBindGroupLayout({
-        entries : [
+        entries: [
             { binding: 0, visibility: GPUShaderStage.COMPUTE, buffer: { type: "read-only-storage" } },
             { binding: 1, visibility: GPUShaderStage.COMPUTE, buffer: { type: "storage" } },
             { binding: 2, visibility: GPUShaderStage.COMPUTE, buffer: {} }, // optional uniform buffer
-        ]
+        ],
     });
     let buffersPipelineLayout = device.createPipelineLayout({
-        bindGroupLayouts: [ buffersGroupLayout ]
+        bindGroupLayouts: [buffersGroupLayout],
     });
 
     //== Naive technique, access VRAM direxctly through textures
@@ -151,17 +150,17 @@ function buildPipelines() {
         compute: {
             module,
             entryPoint: "transpose",
-            constants: { 0: wg_size[0], 1: wg_size[1] }
+            constants: { 0: wg_size[0], 1: wg_size[1] },
         },
         layout: texturesPipelineLayout,
     });
 
     //== Use shared memory, access through textures
     tiledTexPipeline = device.createComputePipeline({
-        compute: { 
+        compute: {
             module: module_tiled,
             entryPoint: "transpose_tiled",
-            constants: { 0: Math.min(wg_size[0], 16) }
+            constants: { 0: Math.min(wg_size[0], 16) },
         },
         layout: texturesPipelineLayout,
     });
@@ -171,7 +170,7 @@ function buildPipelines() {
         compute: {
             module,
             entryPoint: "transpose_tiled_buffers",
-            constants: { 2: wg_size[0], 3: wg_size[1] }
+            constants: { 2: wg_size[0], 3: wg_size[1] },
         },
         layout: buffersPipelineLayout,
     });
@@ -221,7 +220,7 @@ async function benchmark(pipeline, bindGroup, size) {
         querySet: tsSet,
         beginningOfPassWriteIndex: 0,
         endOfPassWriteIndex: 1,
-    }
+    };
 
     let pass = encoder.beginComputePass({ timestampWrites });
     pass.setPipeline(pipeline);
@@ -268,7 +267,7 @@ async function displayResult(resObject) {
     let dstData = new ImageData(new Uint8ClampedArray(rbBuffer.getMappedRange()), srcBitmap.height, srcBitmap.width);
     let transposedBitmap = await createImageBitmap(dstData);
 
-    const ctx = resultCanvas.getContext('2d');
+    const ctx = resultCanvas.getContext("2d");
     resultCanvas.width = srcBitmap.height;
     resultCanvas.height = srcBitmap.width;
     ctx.clearRect(0, 0, resultCanvas.width, resultCanvas.height);
