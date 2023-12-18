@@ -72,36 +72,35 @@ function clamp(v, a, b) {
 async function loadImageBitmap(url) {
     const res = await fetch(url);
     const blob = await res.blob();
-    return await createImageBitmap(blob, { colorSpaceConversion: 'none' });
+    return await createImageBitmap(blob, { colorSpaceConversion: "none" });
 }
 
 // Adapted from https://webgpufundamentals.org/webgpu/lessons/webgpu-importing-textures.html
 async function waitForVideo(video, useWebcam = false) {
     if (useWebcam) {
-        await navigator.mediaDevices.getUserMedia({ video: true })
-            .then(stream => {
-                video.srcObject = stream;
-            });
+        await navigator.mediaDevices.getUserMedia({ video: true }).then((stream) => {
+            video.srcObject = stream;
+        });
     }
     return new Promise((resolve, reject) => {
-            video.addEventListener('error', reject);
-            if ('requestVideoFrameCallback' in video) {
-                video.requestVideoFrameCallback(resolve);
-            } else {
-                const timeWatcher = () => {
-                    if (video.currentTime > 0) {
-                        resolve();
-                    } else {
-                        requestAnimationFrame(timeWatcher);
-                    }
-                };
-                timeWatcher();
-            }
-            // only play with live video, files require a document interaction
-            if (useWebcam) {
-                video.play().catch(reject);
-            }
-        });
+        video.addEventListener("error", reject);
+        if ("requestVideoFrameCallback" in video) {
+            video.requestVideoFrameCallback(resolve);
+        } else {
+            const timeWatcher = () => {
+                if (video.currentTime > 0) {
+                    resolve();
+                } else {
+                    requestAnimationFrame(timeWatcher);
+                }
+            };
+            timeWatcher();
+        }
+        // only play with live video, files require a document interaction
+        if (useWebcam) {
+            video.play().catch(reject);
+        }
+    });
 }
 
 function updateViewMats(mat, invMat, pov) {
@@ -268,7 +267,7 @@ Promise.all(initComplete).then((results) => {
         addressModeV: "repeat",
         minFilter: "linear",
         magFilter: "linear",
-        mipmapFilter: "linear" // fyi, but irrelevant here
+        mipmapFilter: "linear", // fyi, but irrelevant here
     });
 
     const shaderModule = device.createShaderModule({ code: shaders["mesh.wgsl"] });
@@ -281,7 +280,7 @@ Promise.all(initComplete).then((results) => {
         vertex: {
             module: shaderModule,
             entryPoint: "vertexMain",
-            buffers : [
+            buffers: [
                 {
                     arrayStride: 32,
                     attributes: [
@@ -290,11 +289,11 @@ Promise.all(initComplete).then((results) => {
                         { format: "float32x2", offset: 24, shaderLocation: 2 },
                     ],
                 },
-            ]
+            ],
         },
         fragment: {
             module: shaderModule,
-            entryPoint: (TEST == 4)? "fragmentVideoMain" : "fragmentMain",
+            entryPoint: TEST == 4 ? "fragmentVideoMain" : "fragmentMain",
             targets: [{ format: "bgra8unorm" }],
         },
         primitive: {
@@ -303,9 +302,9 @@ Promise.all(initComplete).then((results) => {
         depthStencil: {
             depthWriteEnabled: true,
             depthCompare: "less",
-            format: "depth32float"
+            format: "depth32float",
         },
-        layout: pipelineLayout
+        layout: pipelineLayout,
     });
 
     // SceneData layout (offset, size)
@@ -328,7 +327,7 @@ Promise.all(initComplete).then((results) => {
     let pov = { theta: 0.0, phi: radians(60), dist: 10.0 };
     updateViewMats(viewMat, invViewMat, pov);
     mat4.invert(invViewMat, viewMat);
-    mat4.perspective(projMat, (Math.PI / 180.0) * 30, canvas.width / canvas.height, 0.1, 1000.0); 
+    mat4.perspective(projMat, (Math.PI / 180.0) * 30, canvas.width / canvas.height, 0.1, 1000.0);
 
     lightPos[0] = 0.0;
     lightPos[1] = 3.0;
@@ -380,22 +379,20 @@ Promise.all(initComplete).then((results) => {
     device.queue.writeBuffer(meshDataBuffer, 0, meshData);
 
     let sceneGroup = device.createBindGroup({
-        entries: [
-            { binding: 0, resource: { buffer: sceneDataBuffer } },
-        ],
+        entries: [{ binding: 0, resource: { buffer: sceneDataBuffer } }],
         layout: pipeline.getBindGroupLayout(0),
     });
 
     var meshGroup;
     if (TEST != 4) {
         meshGroup = device.createBindGroup({
-        entries: [
-            { binding: 0, resource: { buffer: meshDataBuffer } },
-            { binding: 1, resource: texture.createView() },
-            { binding: 2, resource: sampler }
-        ],
-        layout: pipeline.getBindGroupLayout(1),
-    });
+            entries: [
+                { binding: 0, resource: { buffer: meshDataBuffer } },
+                { binding: 1, resource: texture.createView() },
+                { binding: 2, resource: sampler },
+            ],
+            layout: pipeline.getBindGroupLayout(1),
+        });
     }
 
     let angle = 0.0;
@@ -424,23 +421,23 @@ Promise.all(initComplete).then((results) => {
                 depthLoadOp: "clear",
                 depthStoreOp: "store",
                 view: zbuffer,
-            }
+            },
         });
 
         if (TEST == 4) {
             // The video element gives a new texture each frame that we need to bind.
             // We could be more clever and test that the texture is actually new,
             // and avoid recreating a bind group each (screen) frame.
-            let video = document.getElementById('video');
+            let video = document.getElementById("video");
             textureExt = device.importExternalTexture({
-                source: video
+                source: video,
             });
 
             meshGroup = device.createBindGroup({
                 entries: [
                     { binding: 0, resource: { buffer: meshDataBuffer } },
-                    { binding: 1, resource: textureExt},
-                    { binding: 2, resource: sampler }
+                    { binding: 1, resource: textureExt },
+                    { binding: 2, resource: sampler },
                 ],
                 layout: pipeline.getBindGroupLayout(1),
             });
@@ -458,7 +455,7 @@ Promise.all(initComplete).then((results) => {
         let commands = encoder.finish({ label: "commandBuffer" });
 
         device.queue.submit([commands]);
- 
+
         window.requestAnimationFrame(update);
     };
 
@@ -486,12 +483,12 @@ Promise.all(initComplete).then((results) => {
             let dx = event.pageX - povAction.x;
             let dy = event.pageY - povAction.y;
 
-            pov.theta = povAction.theta0 + (dx * CAM_ROT_THETA_PER_PIXELS);
+            pov.theta = povAction.theta0 + dx * CAM_ROT_THETA_PER_PIXELS;
             pov.theta = pov.theta % (2.0 * Math.PI);
             if (pov.theta < 0.0) {
-                pov.theta = (2.0 * Math.PI) + pov.theta;
+                pov.theta = 2.0 * Math.PI + pov.theta;
             }
-            pov.phi = clamp(povAction.phi0 - (dy * CAM_ROT_PHI_PER_PIXELS), 1e-6, Math.PI - 1e-6);
+            pov.phi = clamp(povAction.phi0 - dy * CAM_ROT_PHI_PER_PIXELS, 1e-6, Math.PI - 1e-6);
 
             updateViewMats(viewMat, invViewMat, pov);
         }
