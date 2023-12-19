@@ -41,7 +41,7 @@ function fillArrayWithRandom(array) {
     }
 }
 
-const numElements = 1e6; // maximum is 65792 for now;
+const numElements = 1e6; // maximum is workgroup_size^2
 let arrayIn = buildRandomArray(numElements);
 let arrayOut = prefixSum(arrayIn);
 
@@ -261,11 +261,15 @@ let ts = new BigInt64Array(tsBuffers[1].getMappedRange()).slice();
 tsBuffers[1].unmap();
 let gpuExecDuration = Number(ts[1] - ts[0]) / 1e6;
 
+throughput = arrayIn.length / (1e6 * gpuExecDuration * 1e-3);
 console.log(
     `GPU compute: submit: ${roundToDigits(gpuSubmitDuration, 3)} ms, readback: ${roundToDigits(
         gpuReadBackDuration,
         3,
-    )} ms, execution: ${roundToDigits(gpuExecDuration, 3)} ms`,
+    )} ms, execution: ${roundToDigits(gpuExecDuration, 3)} ms ${roundToDigits(
+        throughput,
+        1,
+    )} Melem.s^-1`,
 );
 
 //console.log(`arrayOut: ${gpuArrayOut}`);
