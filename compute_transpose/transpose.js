@@ -17,9 +17,16 @@ let srcBitmap = await createImageBitmap(sourceImage);
 let srcTexture = device.createTexture({
     size: [srcBitmap.width, srcBitmap.height],
     format: "rgba8unorm",
-    usage: GPUTextureUsage.COPY_DST | GPUTextureUsage.COPY_SRC | GPUTextureUsage.RENDER_ATTACHMENT | GPUTextureUsage.TEXTURE_BINDING,
+    usage:
+        GPUTextureUsage.COPY_DST |
+        GPUTextureUsage.COPY_SRC |
+        GPUTextureUsage.RENDER_ATTACHMENT |
+        GPUTextureUsage.TEXTURE_BINDING,
 });
-device.queue.copyExternalImageToTexture({ source: srcBitmap }, { texture: srcTexture }, [srcBitmap.width, srcBitmap.height]);
+device.queue.copyExternalImageToTexture({ source: srcBitmap }, { texture: srcTexture }, [
+    srcBitmap.width,
+    srcBitmap.height,
+]);
 
 let srcBuffer = device.createBuffer({
     size: srcBitmap.width * srcBitmap.height * 4,
@@ -27,7 +34,10 @@ let srcBuffer = device.createBuffer({
 });
 
 let enc = device.createCommandEncoder();
-enc.copyTextureToBuffer({ texture: srcTexture }, { buffer: srcBuffer, bytesPerRow: 4 * srcBitmap.width }, [srcBitmap.width, srcBitmap.height]);
+enc.copyTextureToBuffer({ texture: srcTexture }, { buffer: srcBuffer, bytesPerRow: 4 * srcBitmap.width }, [
+    srcBitmap.width,
+    srcBitmap.height,
+]);
 device.queue.submit([enc.finish()]);
 
 //== Create the destination data texture/buffer (depends on pipeline)
@@ -62,7 +72,7 @@ const module_tiled = device.createShaderModule({
     code: shaders["transpose_tiled.wgsl"],
 });
 
-//== Pipelines and bind groups created 
+//== Pipelines and bind groups created
 let naiveTexPipeline, tiledTexPipeline, tiledBufPipeline;
 let buffersBindGroup, texturesBindGroup;
 
@@ -120,14 +130,17 @@ document.getElementById("benchmark-button").addEventListener("click", async () =
     }
 });
 
-
 function buildPipelines() {
     // Access through textures
     const texturesGroupLayout = device.createBindGroupLayout({
-        entries : [
-            { binding: 0, visibility: GPUShaderStage.COMPUTE, texture: { } },
-            { binding: 1, visibility: GPUShaderStage.COMPUTE, storageTexture: { format: "rgba8unorm", access: "write-only" } },
-        ]
+        entries: [
+            { binding: 0, visibility: GPUShaderStage.COMPUTE, texture: {} },
+            {
+                binding: 1,
+                visibility: GPUShaderStage.COMPUTE,
+                storageTexture: { format: "rgba8unorm", access: "write-only" },
+            },
+        ],
     });
     const texturesPipelineLayout = device.createPipelineLayout({
         bindGroupLayouts: [texturesGroupLayout],
@@ -199,8 +212,8 @@ function buildPipelines() {
 // run the pipeline once
 function run(pipeline, bindGroup, size) {
     const encoder = device.createCommandEncoder();
-    
-    let pass = encoder.beginComputePass({ });
+
+    let pass = encoder.beginComputePass({});
     pass.setBindGroup(0, bindGroup);
     pass.setPipeline(pipeline);
     pass.dispatchWorkgroups(srcBitmap.width / size[0], srcBitmap.height / size[1]);
@@ -240,23 +253,23 @@ async function benchmark(pipeline, bindGroup, size) {
     await tsBuffers[1].mapAsync(GPUMapMode.READ);
     let ts = new BigUint64Array(tsBuffers[1].getMappedRange()).slice();
     tsBuffers[1].unmap();
-    return Number((ts[1] - ts[0])) / (1e3 * numRuns);
+    return Number(ts[1] - ts[0]) / (1e3 * numRuns);
 }
 
 // Read back result and draw it on the canvas
 async function displayResult(resObject) {
     let rbBuffer = device.createBuffer({
         size: srcBitmap.width * srcBitmap.height * 4,
-        usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.MAP_READ
+        usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.MAP_READ,
     });
 
     const encoder = device.createCommandEncoder();
-    
+
     if (resObject.constructor.name === "GPUTexture") {
-        encoder.copyTextureToBuffer(
-            { texture: resObject },
-            { buffer: rbBuffer, bytesPerRow: srcBitmap.height * 4 },
-            [srcBitmap.height, srcBitmap.width]);
+        encoder.copyTextureToBuffer({ texture: resObject }, { buffer: rbBuffer, bytesPerRow: srcBitmap.height * 4 }, [
+            srcBitmap.height,
+            srcBitmap.width,
+        ]);
     } else {
         encoder.copyBufferToBuffer(resObject, 0, rbBuffer, 0, dstBuffer.size);
     }
