@@ -13,7 +13,7 @@ async function initContext(canvasId, features, limits) {
 
     let requiredFeatures = (features || []).filter((feature) => adapter.features.has(feature));
 
-    let requiredLimits = Object.entries(limits).reduce((acc, [limit, value]) => {
+    let requiredLimits = Object.entries(limits || {}).reduce((acc, [limit, value]) => {
         if ((adapter.limits[limit] || 0) >= value) {
             acc[limit] = value;
         }
