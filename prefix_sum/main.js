@@ -42,6 +42,8 @@ function fillArrayWithRandom(array) {
 }
 
 const numElements = 1e6; // maximum is workgroup_size^2
+let dispArrays = numElements < 100;
+
 let arrayIn = buildRandomArray(numElements);
 let arrayOut = prefixSum(arrayIn);
 
@@ -56,25 +58,26 @@ console.log(
     )} Melem.s^-1`,
 );
 
-//console.log(`in : ${arrayIn}`);
-//console.log(`out: ${arrayOut}`);
+if (dispArrays) {
+    console.log(`in : ${arrayIn}`);
+    console.log(`out (CPU sequential): ${arrayOut}`);
+}
 
 const maxNumThreads = 16;
 
 let bufferIn = new SharedArrayBuffer(4 * numElements);
-arrayIn = new Int32Array(bufferIn, 0, numElements);
-fillArrayWithRandom(arrayIn);
-
-//console.log(`in : ${arrayIn}`);
+let arrayInShared = new Int32Array(bufferIn, 0, numElements);
+for (let i = 0; i < arrayIn.length; i++) {
+    arrayInShared[i] = arrayIn[i];
+}
 
 let bufferOut = new SharedArrayBuffer(4 * numElements);
 arrayOut = new Int32Array(bufferOut);
 
 let workers = createWorkers("./worker.js", maxNumThreads);
-
 bench = await benchmark(
     async () => {
-        await prefixSumParallel(arrayIn, arrayOut, workers);
+        await prefixSumParallel(arrayInShared, arrayOut, workers);
     },
     numRuns,
     numWarmups,
@@ -87,7 +90,9 @@ console.log(
     )} Melem.s^-1`,
 );
 
-//console.log(`out: ${arrayOut}`);
+if (dispArrays) {
+    console.log(`out (cpu parallel): ${arrayOut}`);
+}
 
 // GPU code is designed around blocks of sliceLength elements
 const sliceLength = 1024;
@@ -266,13 +271,12 @@ console.log(
     `GPU compute: submit: ${roundToDigits(gpuSubmitDuration, 3)} ms, readback: ${roundToDigits(
         gpuReadBackDuration,
         3,
-    )} ms, execution: ${roundToDigits(gpuExecDuration, 3)} ms ${roundToDigits(
-        throughput,
-        1,
-    )} Melem.s^-1`,
+    )} ms, execution: ${roundToDigits(gpuExecDuration, 3)} ms ${roundToDigits(throughput, 1)} Melem.s^-1`,
 );
 
-//console.log(`arrayOut: ${gpuArrayOut}`);
+if (dispArrays) {
+    console.log(`out (GPU): ${gpuArrayOut}`);
+}
 console.log(
     `diff = ${Array.from(gpuArrayOut)
         .map((element, index) => [element, arrayOut[index]])
